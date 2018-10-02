@@ -26,10 +26,7 @@ function setup() {
     }
 
     dropShape(16, 'i', 1);
-    dropShape(16, 'i', 0);
-    dropShape(16, 's', 1);
-    dropShape(16, 'z', 0);
-    dropShape(16, 'l', 0);
+    dropShape(17, 'o', 0);
 }
 
 // places a shape on the board at a certain location
@@ -39,11 +36,18 @@ function placeShape(x, y, shape, o) {
     }
 }
 
+// removes a shape from the board
+function clearShape(x, y, shape, o) {
+    for (let point of orientations[shape][o]) {
+        board[x + point[0]][y + point[1]] = '';
+    }
+}
+
 // drops a shape to the bottom of the board, obeying tetris rules
-// returns false if the shape could not be dropped at specified position. returns true otherwise.
+// returns false if the shape could not be dropped at specified position. returns the final y coordinate otherwise.
 function dropShape(x, shape, o) {
     let y = getMinimumY(shape, o);
-    while (checkShape(x, y, shape, o) && y <= getMaximumY(shape, o)) {
+    while (checkShape(x, y, shape, o)) {
         y++;
     }
     if (y == getMinimumY(shape, o)) {
@@ -53,17 +57,45 @@ function dropShape(x, shape, o) {
 
     y--;
     placeShape(x, y, shape, o);
+    return y;
+}
+
+// returns whether or not dropping a shape from the specified point
+// a) is possible, and
+// b) would not block off a gap
+function goodDrop(x, shape, o) {
+    let y = dropShape(x, shape, o);
+    if (y === false) return false;
+
+    // scan down each column
+    for (let cx = x - 2; cx <= x + 2; cx++) {
+        let flag = false;
+        for (let cy = 0; cy < size; cy++) {
+            if (board[cx][cy] !== '') flag = true;
+            if (flag && board[cx][cy] === '') {
+                clearShape(x, y, shape, o);
+                return false;
+            }
+        }
+    }
+
+    clearShape(x, y, shape, o);
     return true;
 }
 
-// returns minimum y-coordinate for specified shape
+// returns minimum y-coordinate for placing the specified shape
 function getMinimumY(shape, o) {
     return -Math.min.apply(null, orientations[shape][o].map(p => p[1]));
 }
 
-// returns maximum y-coordinate for specified shape
-function getMaximumY(shape, o) {
-    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p => p[1]));
+// returns minimum x-coordinate for placing the specified shape
+function getMinimumX(shape, o) {
+    return -Math.min.apply(null, orientations[shape][o].map(p => p[0]));
+}
+
+// returns maximum x-coordinate for placing the specified shape
+function getMaximumX(shape, o) {
+    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p => [0]));
 }
 
 // checks whether a shape will overlap at a specific position
