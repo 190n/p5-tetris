@@ -25,17 +25,11 @@ function setup() {
         }
     }
 
-    let x = 5, y = 5;
-    for (let s of shapes) {
-        for (let o in orientations[s]) {
-            placeShape(x, y, s, o);
-            x += 5;
-            if (x > 25) {
-                x = 5;
-                y += 5;
-            }
-        }
-    }
+    dropShape(16, 'i', 1);
+    dropShape(16, 'i', 0);
+    dropShape(16, 's', 1);
+    dropShape(16, 'z', 0);
+    dropShape(16, 'l', 0);
 }
 
 // places a shape on the board at a certain location
@@ -46,8 +40,30 @@ function placeShape(x, y, shape, o) {
 }
 
 // drops a shape to the bottom of the board, obeying tetris rules
+// returns false if the shape could not be dropped at specified position. returns true otherwise.
 function dropShape(x, shape, o) {
+    let y = getMinimumY(shape, o);
+    while (checkShape(x, y, shape, o) && y <= getMaximumY(shape, o)) {
+        y++;
+    }
+    if (y == getMinimumY(shape, o)) {
+        // could not be dropped
+        return false;
+    }
 
+    y--;
+    placeShape(x, y, shape, o);
+    return true;
+}
+
+// returns minimum y-coordinate for specified shape
+function getMinimumY(shape, o) {
+    return -Math.min.apply(null, orientations[shape][o].map(p => p[1]));
+}
+
+// returns maximum y-coordinate for specified shape
+function getMaximumY(shape, o) {
+    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p => p[1]));
 }
 
 // checks whether a shape will overlap at a specific position
