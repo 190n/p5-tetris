@@ -38,10 +38,27 @@ function setup() {
     }
 }
 
+// places a shape on the board at a certain location
 function placeShape(x, y, shape, o) {
     for (let point of orientations[shape][o]) {
         board[x + point[0]][y + point[1]] = shape;
     }
+}
+
+// drops a shape to the bottom of the board, obeying tetris rules
+function dropShape(x, shape, o) {
+
+}
+
+// checks whether a shape will overlap at a specific position
+function checkShape(x, y, shape, o) {
+    for (let p of orientations[shape][o]) {
+        if (board[x + p[0]][y + p[1]] !== '') {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function draw() {
