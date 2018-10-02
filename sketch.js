@@ -25,8 +25,16 @@ function setup() {
         }
     }
 
-    dropShape(16, 'i', 1);
-    dropShape(17, 'o', 0);
+    let allDrops = getAllDrops();
+
+    try {
+        for (i = 0; i < 100; i++) {
+            let drop = random(allDrops.filter(d => goodDrop(d[0], d[1], d[2])));
+            dropShape(d[0], d[1], d[2]);
+        }
+    } catch (e) {
+        console.log(i);
+    }
 }
 
 // places a shape on the board at a certain location
@@ -68,7 +76,7 @@ function goodDrop(x, shape, o) {
     if (y === false) return false;
 
     // scan down each column
-    for (let cx = x - 2; cx <= x + 2; cx++) {
+    for (let cx = Math.max(0, x - 2); cx <= Math.min(size - 1, x + 2); cx++) {
         let flag = false;
         for (let cy = 0; cy < size; cy++) {
             if (board[cx][cy] !== '') flag = true;
@@ -107,6 +115,21 @@ function checkShape(x, y, shape, o) {
     }
 
     return true;
+}
+
+// returns a list of [x, shape, o] for every drop that could be made (whether or not they are good)
+function getAllDrops() {
+    let result = [];
+
+    for (let s of shapes) {
+        for (let o in orientations[s]) {
+            for (let x = getMinimumX(s, o); x <= getMaximumX(s, o); x++) {
+                result.push([x, s, o]);
+            }
+        }
+    }
+
+    return result;
 }
 
 function draw() {
