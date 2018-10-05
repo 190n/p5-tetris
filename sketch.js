@@ -11,9 +11,14 @@ const shapes = 'ijlostz'.split(''),
     },
     scale = 16,
     size = 32,
-    board = [];
+    board = [],
+    allDrops = getAllDrops(),
+    goodDrops = {},
+    allCombinations = [];
 
 function setup() {
+    // randomSeed(2);
+
     createCanvas(scale * size, scale * size);
     noStroke();
 
@@ -25,15 +30,12 @@ function setup() {
         }
     }
 
-    let allDrops = getAllDrops();
-
-    try {
-        for (i = 0; i < 100; i++) {
-            let drop = random(allDrops.filter(d => goodDrop(d[0], d[1], d[2])));
-            dropShape(d[0], d[1], d[2]);
+    for (let s of shapes) {
+        goodDrops[s] = [];
+        for (let o in orientations[s]) {
+            goodDrops[s][o] = getGoodDrops(s, o);
+            allCombinations.push([s, o]);
         }
-    } catch (e) {
-        console.log(i);
     }
 }
 
@@ -91,6 +93,10 @@ function goodDrop(x, shape, o) {
     return true;
 }
 
+function getGoodDrops(shape, o) {
+    return allDrops.filter(d => d[1] == shape && d[2] == o && goodDrop(d[0], d[1], d[2]));
+}
+
 // returns minimum y-coordinate for placing the specified shape
 function getMinimumY(shape, o) {
     return -Math.min.apply(null, orientations[shape][o].map(p => p[1]));
@@ -103,12 +109,13 @@ function getMinimumX(shape, o) {
 
 // returns maximum x-coordinate for placing the specified shape
 function getMaximumX(shape, o) {
-    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p => [0]));
+    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p =>p [0]));
 }
 
 // checks whether a shape will overlap at a specific position
 function checkShape(x, y, shape, o) {
     for (let p of orientations[shape][o]) {
+        console.log(x, p[0]);
         if (board[x + p[0]][y + p[1]] !== '') {
             return false;
         }
@@ -132,6 +139,27 @@ function getAllDrops() {
     return result;
 }
 
+function addOne() {
+    let foundOneThatWorks = false,
+        drop,
+        triedCombinations = [];
+
+    while (!foundOneThatWorks) {
+        let [s, o] = random(allCombinations);
+        while (triedCombinations.some(c => (c[0] == s && c[1] == o))) {
+            [s, o] = random(allCombinations);
+        }
+
+        triedCombinations.push([s, o]);
+        let drops = getGoodDrops(s, o);
+        if (drops.length > 0) {
+            drop = random(drops);
+            foundOneThatWorks = true;
+        }
+    }
+    dropShape(drop[0], drop[1], drop[2]);
+}
+
 function draw() {
     background(255);
     for (let x = 0; x < size; x++) {
@@ -140,4 +168,6 @@ function draw() {
             rect(x * scale, y * scale, scale, scale);
         }
     }
+
+    addOne();
 }
