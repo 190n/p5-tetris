@@ -10,11 +10,13 @@ const shapes = 'ijlostz'.split(''),
         '': '#ffffff'
     },
     scale = 16,
-    size = 32,
-    board = [],
+    size = 32;
+
+let board = [],
     allDrops = getAllDrops(),
-    goodDrops = {},
-    allCombinations = [];
+    // goodDrops = {},
+    allCombinations = [],
+    globalStop = false;
 
 function setup() {
     // randomSeed(2);
@@ -31,9 +33,9 @@ function setup() {
     }
 
     for (let s of shapes) {
-        goodDrops[s] = [];
+        // goodDrops[s] = [];
         for (let o in orientations[s]) {
-            goodDrops[s][o] = getGoodDrops(s, o);
+            // goodDrops[s][o] = allDrops.filter(d => d[0] == s && d[1] == o);
             allCombinations.push([s, o]);
         }
     }
@@ -115,7 +117,6 @@ function getMaximumX(shape, o) {
 // checks whether a shape will overlap at a specific position
 function checkShape(x, y, shape, o) {
     for (let p of orientations[shape][o]) {
-        console.log(x, p[0]);
         if (board[x + p[0]][y + p[1]] !== '') {
             return false;
         }
@@ -140,13 +141,19 @@ function getAllDrops() {
 }
 
 function addOne() {
+    if (globalStop) return;
+
     let foundOneThatWorks = false,
         drop,
         triedCombinations = [];
 
-    while (!foundOneThatWorks) {
+    let timeout = setTimeout(_ => {
+        globalStop = true;
+    }, 1000);
+
+    while (!globalStop && !foundOneThatWorks) {
         let [s, o] = random(allCombinations);
-        while (triedCombinations.some(c => (c[0] == s && c[1] == o))) {
+        while (!globalStop && triedCombinations.some(c => (c[0] == s && c[1] == o))) {
             [s, o] = random(allCombinations);
         }
 
@@ -158,6 +165,7 @@ function addOne() {
         }
     }
     dropShape(drop[0], drop[1], drop[2]);
+    clearTimeout(timeout);
 }
 
 function draw() {
