@@ -9,8 +9,8 @@ const colors = {
         '': '#ffffff'
     },
     scale = 16,
-    width = 16,
-    height = 16;
+    width = 120,
+    height = 67;
 
 let board = [],
     allDrops = getAllDrops(),
@@ -73,6 +73,10 @@ function addOne() {
     dropsMade.push([drop[0], y, drop[1], drop[2]]);
 }
 
+function removeOne() {
+    clearShape(...dropsMade.pop());
+}
+
 function draw() {
     background(255);
     for (let x = 0; x < width; x++) {
@@ -83,4 +87,9 @@ function draw() {
     }
 
     addOne();
+
+    if (globalStop && dropsMade.length < width * height / 4) {
+        for (let i = 0; i < 20; i++) removeOne();
+        globalStop = false;
+    }
 }
