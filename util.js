@@ -31,6 +31,14 @@ function dropShape(x, shape, o) {
     return y;
 }
 
+// get y coordinate that a shape would be dropped at, without modifying the board
+function getDropY(x, shape, o) {
+    let y = dropShape(x, shape, o);
+    if (y === false) return false;
+    clearShape(x, y, shape, o);
+    return y;
+}
+
 // returns whether or not dropping a shape from the specified point
 // a) is possible, and
 // b) would not block off a gap
@@ -39,9 +47,9 @@ function goodDrop(x, shape, o) {
     if (y === false) return false;
 
     // scan down each column
-    for (let cx = Math.max(0, x - 2); cx <= Math.min(size - 1, x + 2); cx++) {
+    for (let cx = Math.max(0, x - 2); cx <= Math.min(width - 1, x + 2); cx++) {
         let flag = false;
-        for (let cy = 0; cy < size; cy++) {
+        for (let cy = 0; cy < height; cy++) {
             if (board[cx][cy] !== '') flag = true;
             if (flag && board[cx][cy] === '') {
                 clearShape(x, y, shape, o);
@@ -70,7 +78,7 @@ function getMinimumX(shape, o) {
 
 // returns maximum x-coordinate for placing the specified shape
 function getMaximumX(shape, o) {
-    return size - 1 - Math.max.apply(null, orientations[shape][o].map(p =>p [0]));
+    return width - 1 - Math.max.apply(null, orientations[shape][o].map(p =>p [0]));
 }
 
 // checks whether a shape will overlap at a specific position

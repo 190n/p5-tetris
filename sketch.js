@@ -9,24 +9,26 @@ const colors = {
         '': '#ffffff'
     },
     scale = 16,
-    size = 32;
+    width = 16,
+    height = 16;
 
 let board = [],
     allDrops = getAllDrops(),
     // goodDrops = {},
     allCombinations = [],
+    dropsMade = [],
     globalStop = false;
 
 function setup() {
     // randomSeed(2);
 
-    createCanvas(scale * size, scale * size);
+    createCanvas(scale * width, scale * height);
     noStroke();
 
     // create empty board
-    for (let x = 0; x < size; x++) {
+    for (let x = 0; x < width; x++) {
         board.push([]);
-        for (let y = 0; y < size; y++) {
+        for (let y = 0; y < height; y++) {
             board[x].push('');
         }
     }
@@ -47,10 +49,6 @@ function addOne() {
         drop,
         triedCombinations = [];
 
-    let timeout = setTimeout(_ => {
-        globalStop = true;
-    }, 1000);
-
     while (!globalStop && !foundOneThatWorks) {
         let [s, o] = random(allCombinations);
         while (!globalStop && triedCombinations.some(c => (c[0] == s && c[1] == o))) {
@@ -58,20 +56,27 @@ function addOne() {
         }
 
         triedCombinations.push([s, o]);
+        if (triedCombinations.length >= allCombinations.length) {
+            globalStop = true;
+        }
         let drops = getGoodDrops(s, o);
         if (drops.length > 0) {
-            drop = random(drops);
+            drop = drops.sort((a, b) => getDropY(...b) - getDropY(...a))[0];
             foundOneThatWorks = true;
         }
     }
-    dropShape(drop[0], drop[1], drop[2]);
-    clearTimeout(timeout);
+
+    if (globalStop) return;
+
+    let y = dropShape(...drop);
+    // [x, y, shape, o]
+    dropsMade.push([drop[0], y, drop[1], drop[2]]);
 }
 
 function draw() {
     background(255);
-    for (let x = 0; x < size; x++) {
-        for (let y = 0; y < size; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             fill(colors[board[x][y]]);
             rect(x * scale, y * scale, scale, scale);
         }
