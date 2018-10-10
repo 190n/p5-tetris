@@ -1,0 +1,20 @@
+"current" - reference to where to insert new tree items
+when making a drop, add all possibilities as a sub of current and add an empty object to each one
+when a whole tree has been tried, remove it
+
+https://en.wikipedia.org/wiki/Depth-first_search
+
+maybe don't need the tree?
+just a lot of recursion
+
+structure:
+
+{
+    [drop1]: {
+        [drop1]: {}
+        [drop2]: {
+            [drop1]: false // this caused there to be no more room but the board wasn't full
+        }
+    }
+    [drop2]: {}
+}

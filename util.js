@@ -1,14 +1,14 @@
 const shapes = 'ijlostz'.split('');
 
 // places a shape on the board at a certain location
-function placeShape(x, y, shape, o) {
+function _placeShape(x, y, shape, o) {
     for (let point of orientations[shape][o]) {
         board[x + point[0]][y + point[1]] = shape;
     }
 }
 
 // removes a shape from the board
-function clearShape(x, y, shape, o) {
+function _clearShape(x, y, shape, o) {
     for (let point of orientations[shape][o]) {
         board[x + point[0]][y + point[1]] = '';
     }
@@ -105,4 +105,19 @@ function getAllDrops() {
     }
 
     return result;
+}
+
+// selects random item from array
+let random;
+
+// only call this when seeded RNG has been loaded
+function initRandom() {
+    random = (function() {
+        // seed with random value
+        let rng = new Math.seedrandom(Math.random());
+
+        return function random(arr) {
+            return arr[Math.floor(rng() / arr.length)];
+        }
+    })();
 }
