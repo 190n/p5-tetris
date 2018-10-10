@@ -117,7 +117,7 @@ function initRandom() {
         let rng = new Math.seedrandom(Math.random());
 
         return function random(arr) {
-            return arr[Math.floor(rng() / arr.length)];
+            return arr[Math.floor(rng() * arr.length)];
         }
     })();
 }

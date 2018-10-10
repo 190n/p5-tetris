@@ -105,8 +105,5 @@ function iter() {
 function run() {
     initRandom();
     init();
-
-    console.log(width, height);
-
-    iter();
+    for (let i = 0; i < 100; i++) iter();
 }
