@@ -42,6 +42,7 @@ function getDropY(x, shape, o) {
 // returns whether or not dropping a shape from the specified point
 // a) is possible, and
 // b) would not block off a gap
+// c) would not create a gap with area not a multiple of 4
 function goodDrop(x, shape, o) {
     let y = dropShape(x, shape, o);
     if (y === false) return false;
@@ -55,6 +56,27 @@ function goodDrop(x, shape, o) {
                 clearShape(x, y, shape, o);
                 return false;
             }
+        }
+    }
+
+    // only check gaps if the shape is near the top
+    if (orientations[shape][o].some(p => p[1] + y == 0)) {
+        // only check for a gap where we need to
+        // e.g. if the top row looks like this (# = shape, . = gap)
+        // x = 0 1 2 3 4 5 6 7
+        //     # # . . . # . .
+        // we only need to check for gaps at (2, 0) and (6, 0)
+        let last = true;
+        for (let tx = 0; tx < width; tx++) {
+            if (last && board[tx][0] == '') {
+                console.log(tx);
+                if (getAreaSize(tx, 0) % 4 != 0) {
+                    clearShape(x, y, shape, o);
+                    return false;
+                }
+            }
+
+            last = (board[tx][0] != '');
         }
     }
 

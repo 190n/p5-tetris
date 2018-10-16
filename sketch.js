@@ -21,8 +21,8 @@ const colors = {
         '': '#ffffff'
     },
     scale = 16,
-    width = 6,
-    height = 6;
+    width = 16,
+    height = 32;
 
 let board = [],
     allDrops = getAllDrops(),
@@ -52,7 +52,7 @@ function setup() {
     }
 
     // start algorithm in another thread
-    setTimeout(iter, 0);
+    setTimeout(iter, 3000);
 }
 
 function iter() {
