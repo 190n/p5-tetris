@@ -106,3 +106,26 @@ function getAllDrops() {
 
     return result;
 }
+
+// returns size of contiguous area around (x, y)
+// based on flood fill algorithm
+function getAreaSize(x, y) {
+    let target = board[x][y],
+        q = [[x, y]],
+        seen = [];
+    
+    while (q.length > 0) {
+        let n = q.shift(),
+            w = [...n],
+            e = [...n];
+        while (w[0] > 0 && board[w[0] - 1][w[1]] == target) w[0]--;
+        while (e[0] < width - 1 && board[e[0] + 1][e[1]] == target) e[0]++;
+        for (let cx = w[0]; cx <= e[0]; cx++) {
+            if (!seen.some(i => i[0] == cx && i[1] == n[1])) seen.push([cx, n[1]]);
+            if (n[1] > 0 && !seen.some(i => i[0] == cx && i[1] == n[1] - 1) && board[cx][n[1] - 1] == target) q.push([cx, n[1] - 1]);
+            if (n[1] < height - 1 && !seen.some(i => i[0] == cx && i[1] == n[1] + 1) && board[cx][n[1] + 1] == target) q.push([cx, n[1] + 1]);
+        }
+    }
+
+    return seen.length;
+}

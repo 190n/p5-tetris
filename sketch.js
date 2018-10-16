@@ -1,3 +1,15 @@
+/*
+Title: p5-tetris
+Imagined, Designed, and Programmed by: Ben Grant
+Date: 2018-10-12
+Description: Fills a board with Tetris shapes
+Sources of ideas and inspiration (title, author, URL):
+ * Tetris, by Alexey Pajitnov
+ 
+Includes code from (title, author, URL):
+ * https://en.wikipedia.org/wiki/Flood_fill (third pseudocode listing)
+*/
+
 const colors = {
         i: '#00ffff',
         j: '#0000ff',
@@ -9,8 +21,8 @@ const colors = {
         '': '#ffffff'
     },
     scale = 16,
-    width = 80,
-    height = 16;
+    width = 6,
+    height = 6;
 
 let board = [],
     allDrops = getAllDrops(),
