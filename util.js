@@ -136,22 +136,17 @@ function getAreaSize(x, y) {
         replacement = target + ' ',
         q = [[x, y]];
 
-    fill('rgba(0, 0, 0, 0.05)');
-
     while (q.length > 0) {
         let n = q.shift(),
             w = [...n],
             e = [...n];
 
         if (board[n[0]][n[1]] == replacement) continue;
-        
-        rect(n[0] * 16, n[1] * 16, 16, 16);
 
         while (w[0] > 0 && board[w[0] - 1][w[1]] == target) w[0]--;
         while (e[0] < width - 1 && board[e[0] + 1][e[1]] == target) e[0]++;
 
         for (let cx = w[0]; cx <= e[0]; cx++) {
-            rect(cx * 16, n[1] * 16, 16, 16);
             board[cx][n[1]] = replacement;
             if (n[1] > 0 && board[cx][n[1] - 1] == target) q.push([cx, n[1] - 1]);
             if (n[1] < height - 1 && board[cx][n[1] + 1] == target) q.push([cx, n[1] + 1]);

@@ -29,7 +29,8 @@ let board = [],
     allCombinations = [],
     dropsMade = [],
     globalStop = false,
-    numToRemove = 1;
+    numToRemove = 1,
+    pointsChanged = [];
 
 function setup() {
     // randomSeed(0);
@@ -93,9 +94,18 @@ function addOne() {
 
     if (globalStop) return;
 
-    let y = dropShape(...drop);
+    let y = dropShapeForReal(...drop);
     // [x, y, shape, o]
     dropsMade.push([drop[0], y, drop[1], drop[2]]);
+}
+
+function dropShapeForReal(...drop) {
+    let y = dropShape(...drop),
+        [x, shape, o] = drop;
+    for (let p of orientations[shape][o]) {
+        pointsChanged.push([p[0] + x, p[1] + y]);
+    }
+    return y;
 }
 
 function removeOne() {
@@ -103,12 +113,10 @@ function removeOne() {
 }
 
 function draw() {
-    background(255);
-
-    for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-            fill(colors[board[x][y]]);
-            rect(x * scale, y * scale, scale, scale);
-        }
+    let numToAdd = pointsChanged.length;
+    for (let i = 0; i < numToAdd; i++) {
+        let [x, y] = pointsChanged.shift();
+        fill(colors[board[x][y]]);
+        rect(x * scale, y * scale, scale, scale);
     }
 }
