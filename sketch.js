@@ -20,9 +20,9 @@ const colors = {
         z: '#ff0000',
         '': '#ffffff'
     },
-    scale = 16,
-    width = 120,
-    height = 67;
+    scale = 8,
+    width = 64,
+    height = 64;
 
 let board = [],
     allDrops = getAllDrops(),
@@ -33,7 +33,7 @@ let board = [],
     pointsChanged = [];
 
 function setup() {
-    // randomSeed(0);
+    randomSeed(0);
 
     createCanvas(scale * width, scale * height);
     noStroke();
@@ -62,7 +62,7 @@ function iter() {
     if (globalStop && dropsMade.length < width * height / 4) {
         for (let i = 0; i < numToRemove && dropsMade.length > 0; i++) removeOne();
         globalStop = false;
-        numToRemove++;
+        numToRemove += 4;
     }
 
     if (!globalStop) setTimeout(iter, 0);
@@ -108,13 +108,22 @@ function dropShapeForReal(...drop) {
     return y;
 }
 
+function clearShapeForReal(...drop) {
+    clearShape(...drop);
+    let [x, y, shape, o] = drop;
+    for (let p of orientations[shape][o]) {
+        pointsChanged.push([p[0] + x, p[1] + y]);
+    }
+}
+
 function removeOne() {
-    clearShape(...dropsMade.pop());
+    clearShapeForReal(...dropsMade.pop());
 }
 
 function draw() {
-    let numToAdd = pointsChanged.length;
-    for (let i = 0; i < numToAdd; i++) {
+    let numChanged = pointsChanged.length;
+    console.log(numChanged);
+    for (let i = 0; i < numChanged; i++) {
         let [x, y] = pointsChanged.shift();
         fill(colors[board[x][y]]);
         rect(x * scale, y * scale, scale, scale);
