@@ -69,7 +69,6 @@ function goodDrop(x, shape, o) {
         let last = true;
         for (let tx = 0; tx < width; tx++) {
             if (last && board[tx][0] == '') {
-                console.log(tx);
                 if (getAreaSize(tx, 0) % 4 != 0) {
                     clearShape(x, y, shape, o);
                     return false;

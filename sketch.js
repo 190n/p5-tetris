@@ -21,8 +21,8 @@ const colors = {
         '': '#ffffff'
     },
     scale = 8,
-    width = 64,
-    height = 64;
+    width = 60,
+    height = 40;
 
 let board = [],
     allDrops = getAllDrops(),
@@ -30,10 +30,20 @@ let board = [],
     dropsMade = [],
     globalStop = false,
     numToRemove = 1,
-    pointsChanged = [];
+    dropsChanged = [],
+    sprites = {};
+
+function preload() {
+    for (let s of shapes) {
+        sprites[s] = [];
+        for (let o in orientations[s]) {
+            sprites[s].push(loadImage('sprites/' + s + o + '.png'));
+        }
+    }
+}
 
 function setup() {
-    randomSeed(0);
+    // randomSeed(0);
 
     createCanvas(scale * width, scale * height);
     noStroke();
@@ -102,18 +112,14 @@ function addOne() {
 function dropShapeForReal(...drop) {
     let y = dropShape(...drop),
         [x, shape, o] = drop;
-    for (let p of orientations[shape][o]) {
-        pointsChanged.push([p[0] + x, p[1] + y]);
-    }
+    dropsChanged.push([x, y, shape, o, true]);
     return y;
 }
 
 function clearShapeForReal(...drop) {
     clearShape(...drop);
     let [x, y, shape, o] = drop;
-    for (let p of orientations[shape][o]) {
-        pointsChanged.push([p[0] + x, p[1] + y]);
-    }
+    dropsChanged.push([x, y, shape, o, false]);
 }
 
 function removeOne() {
@@ -121,11 +127,16 @@ function removeOne() {
 }
 
 function draw() {
-    let numChanged = pointsChanged.length;
-    console.log(numChanged);
+    let numChanged = dropsChanged.length;
     for (let i = 0; i < numChanged; i++) {
-        let [x, y] = pointsChanged.shift();
-        fill(colors[board[x][y]]);
-        rect(x * scale, y * scale, scale, scale);
+        let [x, y, s, o, exists] = dropsChanged.shift();
+        if (exists) {
+            image(sprites[s][o], (x + spriteOffsets[s][o][0]) * scale, (y + spriteOffsets[s][o][1]) * scale);
+        } else {
+            fill(255);
+            for (let p of orientations[s][o]) {
+                rect((p[0] + x) * scale, (p[1] + y) * scale, scale, scale);
+            }
+        }
     }
 }
