@@ -168,26 +168,44 @@ function getAllDrops() {
 // based on flood fill algorithm (dark magic)
 function getAreaSize(x, y) {
     let target = board[x][y],
+        // we don't actually want to change the board, but it's
+        // useful to keep track of which cells we have seen
         replacement = target + ' ',
         q = [[x, y]];
 
+    // until q is empty
     while (q.length > 0) {
+        // get one node (n) from the queue. w = n, e = n
         let n = q.shift(),
+            // make copies of n, otherwise modifying
+            /// these would also modify n
             w = [...n],
             e = [...n];
 
+        // skip if we've already replaced this one
         if (board[n[0]][n[1]] == replacement) continue;
 
+        // move w to the west until the color of the node
+        // to the west of w is no longer the target color
         while (w[0] > 0 && board[w[0] - 1][w[1]] == target) w[0]--;
+        // move e to the east until the color of the node
+        // to the east of e is no longer the target color
         while (e[0] < width - 1 && board[e[0] + 1][e[1]] == target) e[0]++;
 
+        // for all nodes between w and e
         for (let cx = w[0]; cx <= e[0]; cx++) {
+            // replace that color
             board[cx][n[1]] = replacement;
+            // add the node to the north of this one to the queue
+            // if it matches the target color
             if (n[1] > 0 && board[cx][n[1] - 1] == target) q.push([cx, n[1] - 1]);
+            // add the node to the south of this one to the queue
+            // if it matches the target color
             if (n[1] < height - 1 && board[cx][n[1] + 1] == target) q.push([cx, n[1] + 1]);
         }
     }
 
+    // count cells that we replaced
     let count = 0;
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
