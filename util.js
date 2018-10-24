@@ -1,5 +1,13 @@
 const shapes = 'ijlostz'.split('');
 
+// store results of calcMinimumY, calcMinimumX, calcMaximumX
+// since those don't change depending on the board, and can be
+// slow to calculate
+// minMaxResults[shape][o][0] = minimum Y
+// minMaxResults[shape][o][1] = minimum X
+// minMaxResults[shape][o][2] = maximum X
+let minMaxResults = {};
+
 // places a shape on the board at a certain location
 function placeShape(x, y, shape, o) {
     for (let point of orientations[shape][o]) {
@@ -18,6 +26,8 @@ function clearShape(x, y, shape, o) {
 // returns false if the shape could not be dropped at specified position. returns the final y coordinate otherwise.
 function dropShape(x, shape, o) {
     let y = getMinimumY(shape, o);
+
+    // place it as low on the board as possible
     while (checkShape(x, y, shape, o)) {
         y++;
     }
@@ -26,6 +36,8 @@ function dropShape(x, shape, o) {
         return false;
     }
 
+    // previous code moves it down until it won't work
+    // we need to move one unit back up to get a position that does work
     y--;
     placeShape(x, y, shape, o);
     return y;
@@ -41,13 +53,15 @@ function getDropY(x, shape, o) {
 
 // returns whether or not dropping a shape from the specified point
 // a) is possible, and
-// b) would not block off a gap
+// b) would not block off a gap, and
 // c) would not create a gap with area not a multiple of 4
 function goodDrop(x, shape, o) {
     let y = dropShape(x, shape, o);
     if (y === false) return false;
 
     // scan down each column
+    // if, after seeing at least one filled cell, we see an empty cell,
+    // then this drop does not work as it would create an overhang
     for (let cx = Math.max(0, x - 2); cx <= Math.min(width - 1, x + 2); cx++) {
         let flag = false;
         for (let cy = 0; cy < height; cy++) {
@@ -60,12 +74,19 @@ function goodDrop(x, shape, o) {
     }
 
     // only check gaps if the shape is near the top
-    if (y < 2 && orientations[shape][o].some(p => p[1] + y == 0)) {
+    // if y >= 2, there is no way it exists in the top row
+    // if y < 2, we can check against the actual shape
+    if (y < 2 && y == getMinimumY(shape, o)) {
         // only check for a gap where we need to
         // e.g. if the top row looks like this (# = shape, . = gap)
         // x = 0 1 2 3 4 5 6 7
         //     # # . . . # . .
         // we only need to check for gaps at (2, 0) and (6, 0)
+
+        // scan across the top row
+        // if the current cell is empty and the previous cell
+        // either was filled, or didn't exist (we're currently at x=0)
+        // then we should check that position
         let last = true;
         for (let tx = 0; tx < width; tx++) {
             if (last && board[tx][0] == '') {
@@ -83,28 +104,43 @@ function goodDrop(x, shape, o) {
     return true;
 }
 
+// find all x positions at which we could draw this shape and orientation
 function getGoodDrops(shape, o) {
     return allDrops.filter(d => d[1] == shape && d[2] == o && goodDrop(d[0], d[1], d[2]));
 }
 
 // returns minimum y-coordinate for placing the specified shape
-function getMinimumY(shape, o) {
+function calcMinimumY(shape, o) {
     return -Math.min.apply(null, orientations[shape][o].map(p => p[1]));
 }
 
 // returns minimum x-coordinate for placing the specified shape
-function getMinimumX(shape, o) {
+function calcMinimumX(shape, o) {
     return -Math.min.apply(null, orientations[shape][o].map(p => p[0]));
 }
 
 // returns maximum x-coordinate for placing the specified shape
-function getMaximumX(shape, o) {
+function calcMaximumX(shape, o) {
     return width - 1 - Math.max.apply(null, orientations[shape][o].map(p =>p [0]));
+}
+
+// these functions just return the results we had calculated earlier
+function getMinimumY(shape, o) {
+    return minMaxResults[shape][o][0];
+}
+
+function getMinimumX(shape, o) {
+    return minMaxResults[shape][o][1];
+}
+
+function getMaximumX(shape, o) {
+    return minMaxResults[shape][o][2];
 }
 
 // checks whether a shape will overlap at a specific position
 function checkShape(x, y, shape, o) {
     for (let p of orientations[shape][o]) {
+        // if that cell is currently occupied, it doesn't work
         if (board[x + p[0]][y + p[1]] !== '') {
             return false;
         }
@@ -129,7 +165,7 @@ function getAllDrops() {
 }
 
 // returns size of contiguous area around (x, y)
-// based on flood fill algorithm
+// based on flood fill algorithm (dark magic)
 function getAreaSize(x, y) {
     let target = board[x][y],
         replacement = target + ' ',
@@ -163,4 +199,21 @@ function getAreaSize(x, y) {
     }
 
     return count;
+}
+
+function buildGlobals() {
+    // build allCombinations and minMaxResults
+    for (let s of shapes) {
+        minMaxResults[s] = [];
+        for (let o in orientations[s]) {
+            allCombinations.push([s, o]);
+            minMaxResults[s][o] = [
+                calcMinimumY(s, o),
+                calcMinimumX(s, o),
+                calcMaximumX(s, o)
+            ];
+        }
+    }
+
+    allDrops = getAllDrops();
 }

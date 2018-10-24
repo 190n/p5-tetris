@@ -10,30 +10,29 @@ Includes code from (title, author, URL):
  * https://en.wikipedia.org/wiki/Flood_fill (third pseudocode listing)
 */
 
-const colors = {
-        i: '#00ffff',
-        j: '#0000ff',
-        l: '#ff8000',
-        o: '#ffff00',
-        s: '#00ff00',
-        t: '#800080',
-        z: '#ff0000',
-        '': '#ffffff'
-    },
-    scale = 8,
+// pixels per board cell
+const scale = 8,
+    // in cells, not pixels
     width = 60,
     height = 40;
 
 let board = [],
-    allDrops = getAllDrops(),
+    // all possible combinations of x, shape, orientation
+    allDrops,
+    // all possible combinations of shape, orientation
     allCombinations = [],
     dropsMade = [],
+    // set to true to stop iterating
     globalStop = false,
+    // how many to remove when no more can be added and the board isn't full
     numToRemove = 1,
+    // which shapes have been added or removed since the last redraw
     dropsChanged = [],
+    // references to sprites for shape/orientation combinations
     sprites = {};
 
 function preload() {
+    // load all sprites
     for (let s of shapes) {
         sprites[s] = [];
         for (let o in orientations[s]) {
@@ -58,11 +57,7 @@ function setup() {
         }
     }
 
-    for (let s of shapes) {
-        for (let o in orientations[s]) {
-            allCombinations.push([s, o]);
-        }
-    }
+    buildGlobals();
 
     // start algorithm in another thread
     setTimeout(iter, 0);
@@ -74,9 +69,10 @@ function iter() {
     if (globalStop && dropsMade.length < width * height / 4) {
         for (let i = 0; i < numToRemove && dropsMade.length > 0; i++) removeOne();
         globalStop = false;
-        numToRemove += 4;
+        numToRemove++;
     }
 
+    // run again immediately
     if (!globalStop) setTimeout(iter, 0);
 }
 
@@ -87,6 +83,7 @@ function addOne() {
         drop,
         triedCombinations = [];
 
+    // find a shape/orientation combination that works
     while (!globalStop && !foundOneThatWorks) {
         let [s, o] = random(allCombinations);
         while (!globalStop && triedCombinations.some(c => (c[0] == s && c[1] == o))) {
@@ -97,8 +94,11 @@ function addOne() {
         if (triedCombinations.length >= allCombinations.length) {
             globalStop = true;
         }
+
+        // find all x-coordinates we can drop it at
         let drops = getGoodDrops(s, o);
         if (drops.length > 0) {
+            // if any work, choose the one lowest on the board
             drop = drops.sort((a, b) => getDropY(...b) - getDropY(...a))[0];
             foundOneThatWorks = true;
         }
@@ -106,6 +106,7 @@ function addOne() {
 
     if (globalStop) return;
 
+    // drop the shape
     let y = dropShapeForReal(...drop);
     // [x, y, shape, o]
     dropsMade.push([drop[0], y, drop[1], drop[2]]);
@@ -133,8 +134,10 @@ function draw() {
     for (let i = 0; i < numChanged; i++) {
         let [x, y, s, o, exists] = dropsChanged.shift();
         if (exists) {
+            // draw appropriate sprite
             image(sprites[s][o], (x + spriteOffsets[s][o][0]) * scale, (y + spriteOffsets[s][o][1]) * scale);
         } else {
+            // fill the area covered by that shape with white
             fill(255);
             for (let p of orientations[s][o]) {
                 rect((p[0] + x) * scale, (p[1] + y) * scale, scale, scale);
