@@ -43,7 +43,9 @@ function preload() {
 }
 
 function setup() {
-    randomSeed(parseInt(prompt('Enter seed')));
+    let seed = parseInt(prompt('Enter seed'));
+    randomSeed(seed);
+    document.getElementById('seed').innerHTML = 'Seed: ' + seed;
 
     createCanvas(scale * width, scale * height);
     noStroke();
