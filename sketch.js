@@ -43,7 +43,7 @@ function preload() {
 }
 
 function setup() {
-    // randomSeed(0);
+    randomSeed(parseInt(prompt('Enter seed')));
 
     createCanvas(scale * width, scale * height);
     noStroke();
