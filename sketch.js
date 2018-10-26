@@ -11,7 +11,7 @@ Includes code from (title, author, URL):
 */
 
 // pixels per board cell
-const scale = 8,
+const scale = 16,
     // in cells, not pixels
     width = 60,
     height = 40;
@@ -36,7 +36,7 @@ function preload() {
     for (let s of shapes) {
         sprites[s] = [];
         for (let o in orientations[s]) {
-            sprites[s].push(loadImage('sprites/' + s + o + '.png'));
+            sprites[s].push(loadImage('sprites/16s/' + s + o + '.png'));
         }
     }
 }
