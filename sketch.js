@@ -13,8 +13,8 @@ Includes code from (title, author, URL):
 // pixels per board cell
 const scale = 16,
     // in cells, not pixels
-    width = 60,
-    height = 40;
+    width = 28,
+    height = 20;
 
 let board = [],
     // all possible combinations of x, shape, orientation
