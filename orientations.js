@@ -119,6 +119,7 @@ const orientations = {
     ]
 };
 
+// board coordinates
 const spriteOffsets = {
     i: [
         [0, -1],

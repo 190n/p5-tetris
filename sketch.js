@@ -139,7 +139,8 @@ function draw() {
         let [x, y, s, o, exists] = dropsChanged.shift();
         if (exists) {
             // draw appropriate sprite
-            image(sprites[s][o], (x + spriteOffsets[s][o][0]) * scale, (y + spriteOffsets[s][o][1]) * scale);
+            // image(sprites[s][o], (x + spriteOffsets[s][o][0]) * scale, (y + spriteOffsets[s][o][1]) * scale);
+            drawShape(x, y, s, o);
         } else {
             // fill the area covered by that shape with white
             fill(255);
