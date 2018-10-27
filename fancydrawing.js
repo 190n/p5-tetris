@@ -11,12 +11,38 @@ const colorsDark = {
 
 const colors = colorsDark,
     // rows/cols in grid that exists within cell
-    drawingGridSize = 5,
-    // . = empty
-    // o = outline
-    // O = highlight
-    shapeGrids = {
-        i: [
-            
-        ]
+    drawingGridSize = 5;
+
+let shapesRaw,
+    shapeData = {};
+
+function parseShapeData() {
+    let currentShape = null,
+        currentOrientation = null,
+        currentData = [];
+
+    for (let s of shapes) {
+        shapeData[s] = [];
     }
+
+    for (let l of shapesRaw) {
+        if (shapes.includes(l[0])) {
+            console.log('parsing ' + l.substr(0, 2));
+            if (currentShape !== null) {
+                shapeData[currentShape][currentOrientation] = currentData;
+                currentData = [];
+            }
+
+            currentShape = l[0];
+            currentOrientation = parseInt(l[1]);
+            continue;
+        }
+
+        currentData.push(l.split('').map(c => ({
+            ' ': -1,
+            '.': 0,
+            'o': 1,
+            '#': 2
+        })[c]));
+    }
+}

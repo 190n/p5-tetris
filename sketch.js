@@ -39,9 +39,13 @@ function preload() {
             sprites[s].push(loadImage('sprites/16s/' + s + o + '.png'));
         }
     }
+
+    shapesRaw = loadStrings('shapes.txt');
 }
 
 function setup() {
+    parseShapeData();
+
     let seed = parseInt(prompt('Enter seed'));
     randomSeed(seed);
     document.getElementById('seed').innerHTML = 'Seed: ' + seed;
